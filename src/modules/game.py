@@ -547,7 +547,26 @@ class Game:
                     if self.item_manager:
                         self.item_manager.spawn_item(enemy.rect.x, enemy.rect.y, enemy.type, self.player)
                     # 敌人已经在enemy_manager.update()中被移除，无需再次移除
-            
+
+        if self.enemy_manager and hasattr(self.enemy_manager, 'enemies'):
+        # 计算速度乘数：前2级不变，之后每级+2%
+           if self.level <= 2:
+              speed_multiplier = 1.0
+           else:
+              speed_multiplier = 1.0 + 0.02 * (self.level - 2)
+    
+            # 遍历所有敌人，调整它们的移速
+           for enemy in self.enemy_manager.enemies:
+              if hasattr(enemy, 'movement'):
+               # 如果敌人有 movement 组件
+                  base_speed = getattr(enemy, '_base_speed', None)
+               if base_speed is None:
+                # 第一次调整，记录原始速度
+                    enemy._base_speed = enemy.movement.speed
+                else:
+                # 后续直接按乘数调整
+                    enemy.movement.speed = enemy._base_speed * speed_multiplier
+                
             # 更新敌人和武器
             self.enemy_manager.update(dt, self.player)
             self.player.update_weapons(dt, self.enemy_manager.enemies)
