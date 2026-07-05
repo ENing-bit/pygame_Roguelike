@@ -108,6 +108,13 @@ class Player(pygame.sprite.Sprite):
         # 应用属性到各组件
         self.movement.set_speed(final_stats["speed"])
         
+        # ==== 新增：血量越低移速越快 ====
+        health_ratio = self.health_component.health / self.health_component.max_health
+        if health_ratio < 0.3:
+        # 血量低于30%时，移速提升20%
+          current_speed = self.movement.speed
+          self.movement.set_speed(current_speed * 1.2)
+        
         self.health_component.max_health = final_stats["max_health"]
         self.health_component.defense = final_stats["defense"]
         self.health_component.health_regen = final_stats["health_regen"]
